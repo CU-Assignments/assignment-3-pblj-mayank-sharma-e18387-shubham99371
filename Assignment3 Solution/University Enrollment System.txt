@@ -1,0 +1,69 @@
+import java.util.HashMap;
+import java.util.Scanner;
+
+class CourseFullException extends Exception {
+    public CourseFullException(String message) {
+        super(message);
+    }
+}
+
+class PrerequisiteNotMetException extends Exception {
+    public PrerequisiteNotMetException(String message) {
+        super(message);
+    }
+}
+
+class University {
+    private HashMap<String, Integer> courseSeats;
+    private HashMap<String, String> prerequisites;
+
+    public University() {
+        courseSeats = new HashMap<>();
+        courseSeats.put("Advanced Java", 2);
+        courseSeats.put("Data Structures", 1);
+
+        prerequisites = new HashMap<>();
+        prerequisites.put("Advanced Java", "Core Java");
+        prerequisites.put("Data Structures", "Basic Programming");
+    }
+
+    public void enrollStudent(String course, boolean prerequisiteCompleted) throws CourseFullException, PrerequisiteNotMetException {
+        if (prerequisites.containsKey(course) && !prerequisiteCompleted) {
+            throw new PrerequisiteNotMetException("Error: Complete " + prerequisites.get(course) + " before enrolling in " + course + ".");
+        }
+
+        int availableSeats = courseSeats.getOrDefault(course, 0);
+        if (availableSeats == 0) {
+            throw new CourseFullException("Error: Course " + course + " is full.");
+        }
+
+        courseSeats.put(course, availableSeats - 1);
+        System.out.println("Enrollment successful! Remaining seats in " + course + ": " + (availableSeats - 1));
+    }
+}
+
+public class UniversityEnrollment {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        University university = new University();
+
+        System.out.print("Enroll in Course: ");
+        String course = scanner.nextLine();
+
+        boolean prerequisiteCompleted = false;
+        if (university.prerequisites.containsKey(course)) {
+            System.out.print("Prerequisite completed? (yes/no): ");
+            prerequisiteCompleted = scanner.nextLine().equalsIgnoreCase("yes");
+        }
+
+        try {
+            university.enrollStudent(course, prerequisiteCompleted);
+        } catch (CourseFullException | PrerequisiteNotMetException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: Invalid input.");
+        } finally {
+            scanner.close();
+        }
+    }
+}
